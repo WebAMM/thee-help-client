@@ -1,0 +1,24 @@
+.pagination {
+    display: flex;
+    justify-content: right;
+    align-items: center;
+
+    .page-item {
+        margin: 0% 3px 0% 0%;
+
+        .page-link {
+            z-index: 3;
+            color: #000000;
+            background: linear-gradient(180deg, #BA9743 0%, #FFD66B 100%);
+            border-color: #BA9743 !important;
+            border-radius: 15%;
+
+            &:hover {
+                background: linear-gradient(180deg, #FFD66B 0%, #BA9743 100%);
+                color: #ffffff;
+            }
+        }
+    }
+
+
+}

@@ -1,0 +1,80 @@
+.category__content {
+    margin: 3% 0% 3% 0%;
+
+
+    .container {
+        h3 {
+            font-family: "Poppins";
+            font-style: normal;
+            line-height: 30px;
+            color: #BA9743;
+        }
+
+        .row {
+            flex-direction: inherit !important;
+        }
+
+        .Payment__submit {
+            display: flex;
+            justify-content: space-between;
+
+            .client__cancel__button {
+                background: #FFFFFF;
+                border-radius: 100px;
+                font-family: "Poppins";
+                font-style: normal;
+                font-weight: 400;
+                font-size: 15px;
+                line-height: 30px;
+                text-align: center;
+                color: #000000;
+                border: 1px solid #BA9743;
+                padding: 1% 3% 1% 3%;
+                margin: 2% 0% 2% 0%;
+
+                &:hover {
+                    background: linear-gradient(180deg, #BA9743 0%, #FFD66B 100%);
+                    color: #FFFFFF;
+                    cursor: pointer;
+                    border: 1px solid #BA9743;
+                }
+            }
+
+            .client__submit__button {
+                background: linear-gradient(180deg, #BA9743 0%, #FFD66B 100%);
+                border-radius: 100px;
+                font-family: "Poppins";
+                font-style: normal;
+                font-weight: 400;
+                font-size: 15px;
+                line-height: 30px;
+                text-align: center;
+                color: #000000;
+                border: none;
+                padding: 1% 3% 1% 3%;
+                margin: 2% 0% 2% 0%;
+
+                &:hover {
+                    cursor: pointer;
+                    color: #FFFFFF;
+                    border: none;
+                }
+            }
+        }
+    }
+}
+
+.c-jWYnUm {
+    background-color: linear-gradient(180deg, #BA9743 0%, #FFD66B 100%) !important;
+    border-radius: 5px;
+    color: rgb(255, 255, 255);
+    cursor: pointer;
+    border-style: none;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 24px;
+    outline: none;
+    padding: 12px;
+    user-select: none;
+    width: 100%;
+}
