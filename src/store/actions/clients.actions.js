@@ -23,6 +23,12 @@ const addClientByUserId = async (client) => {
     email,
     user_id: user_id,
   });
+
+  
+    if (data.data) {
+      localStorage.setItem("client", JSON.stringify(data.data));
+    }
+
   console.log(`data`, data);
   return data;
 };

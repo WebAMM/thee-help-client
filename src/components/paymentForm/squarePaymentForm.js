@@ -1,16 +1,24 @@
 // Dependencies
 import * as React from "react";
 import { CreditCard, PaymentForm } from "react-square-web-payments-sdk";
+import { useDispatch } from "react-redux";
+import { ToastContainer, toast } from "react-toastify";
+import {
+  getPaymentByUserId,
+  addPayment,
+} from "../../store/reducers/payment.reducer";
+import {addAppointmentsByUserId} from '../../store/reducers/appointment.reducer'
 
-const SQUARE_APPLICATION_ID = "sandbox-sq0idb-WHjuyf7YDxlfl-ENhXKhNw",
+const SQUARE_APPLICATION_ID = "sandbox-sq0idb-Sd-7i_zsT6sigruHEluwfQ",
   SQUARE_ACCESS_TOKEN =
-    "EAAAENF1WGLlrRSvCTNrGz-hySjsIJyoXQeOrs8zf5EF88B6GGWS-TH-t-O-dg8l",
-  SQUARE_LOCATION_ID = "L5WQ5PY7KJ28J",
+    "EAAAEBV9BqakRfPsjwJvOaGDUUiXBTM93SsCp7RDiJzRfLeantYTz7o-5131eJbw",
+  SQUARE_LOCATION_ID = "LBAQ5YH1FKB6K",
   SQUARE_ENVIRONMENT = "sandbox";
 
 const MyPaymentForm = (props) => {
   const {
     first_name,
+    last_name,
     card_number,
     expiry_date,
     cvv,
@@ -18,7 +26,14 @@ const MyPaymentForm = (props) => {
     card_type,
     amount,
     client_id,
-  } = props;
+  } = props.paymentDetails;
+  let selectedServiceData = props.selectedServiceData
+  let setClientData = props.setClientData
+
+  const company = props.company
+  const complete = props.complete;
+  const dispatch = useDispatch();
+
   return (
     <PaymentForm
       style={{
@@ -34,8 +49,66 @@ const MyPaymentForm = (props) => {
        * Invoked when payment form receives the result of a tokenize generation
        * request. The result will be a valid credit card or wallet token, or an error.
        */
-      cardTokenizeResponseReceived={(token, buyer) => {
-        console.info({ token, buyer });
+      // cardTokenizeResponseReceived={(token, buyer) => {
+      //   console.info({ token, buyer });
+      // }}
+      cardTokenizeResponseReceived={(token, verifiedBuyer) => {
+        console.log('token:', token);
+        console.log('verifiedBuyer:', verifiedBuyer);
+
+        const body = {
+          first_name:first_name,
+          last_name:last_name,
+          amount:amount,
+          sourceId:token.token,
+          userId:company.user_id,
+          client_id:setClientData._id,
+        }
+        console.log(body)
+      //  return
+        try {
+          dispatch(addPayment(body))
+            .then((response) => {
+              if (response.payload.error) {
+                toast.error(response.payload.response);
+              } else {
+                // toast.success("Payment Successfully");
+
+                let data = {
+                  appointment_date:selectedServiceData?.appointment_date,
+                  appointment_time:selectedServiceData?.appointment_time,
+                  title:selectedServiceData?.title,
+                  client_id:selectedServiceData?.client_id,
+                  user_id:selectedServiceData?.user_id,
+                  service_id:selectedServiceData?.service_id,
+                  message:setClientData?.message,
+                  
+                }
+    
+                dispatch(addAppointmentsByUserId(data))
+                .then((response) => {
+                  if (response.payload.error) {
+                    toast.error(response.payload.response);
+                  } else {
+                    toast.success("Appointment added Successfully");
+                    complete()
+                    console.log(`response`, response.payload.client);
+                  }
+                })
+
+
+
+                console.log(`response`, response);
+              }
+            })
+            .catch((err) => {
+              console.log(`err`, err.message);
+            });
+        } catch (error) {
+
+        }
+
+
       }}
       /**
        * This function enable the Strong Customer Authentication (SCA) flow
@@ -62,7 +135,17 @@ const MyPaymentForm = (props) => {
        */
       locationId={SQUARE_LOCATION_ID}
     >
-      <CreditCard />
+      <CreditCard    
+       buttonProps={{
+        css: {
+          backgroundColor: "#BA9743",
+          fontSize: "14px",
+          color: "#fff",
+          "&:hover": {
+            backgroundColor: "black",
+          },
+        },
+      }}/>
     </PaymentForm>
   );
 };

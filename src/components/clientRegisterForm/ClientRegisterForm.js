@@ -10,7 +10,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 const ClientRegisterForm = (props) => {
   const dispatch = useDispatch();
-  const { next, back, complete, selectedServiceData } = props;
+  const { next, back, complete, selectedServiceData,setClientData } = props;
   const {
     appointment_date,
     appointment_time,
@@ -21,6 +21,8 @@ const ClientRegisterForm = (props) => {
     user_id,
     amount,
   } = selectedServiceData;
+  const selectedService = props.selectedService;
+  const setUserAdded = props.setUserAdded;
   const [clientId, setClientId] = useState("");
   const [clientDetails, setClientDetails] = useState({
     first_name: "",
@@ -57,7 +59,7 @@ const ClientRegisterForm = (props) => {
 
   const addClient = () => {
     dispatch(addClientByUserId(clientDetails))
-      .then((response) => {
+      .then(async(response) => {
         if (response.payload.error) {
           toast.error(response.payload.response);
         } else {
@@ -66,6 +68,11 @@ const ClientRegisterForm = (props) => {
             ...appointmentData,
             client_id: response.payload.clientdata._id,
           });
+
+          selectedService((pre)=>({...pre,client_id: response.payload.clientdata._id}))
+          setClientData({...response.payload.clientdata,message:appointmentData.message})
+          setUserAdded(true)
+          next();
           console.log(`response`, response.payload.clientdata);
           toast.success("Client added Successfully");
         }
@@ -79,9 +86,15 @@ const ClientRegisterForm = (props) => {
     console.log("clientDetails", clientDetails);
     e.preventDefault();
     addClient();
+    // setClientData(clientDetails)
+    // selectedServiceData(appointmentData)
+
   };
 
   useEffect(() => {
+    // let client = await localStorage.getItem("client");
+      
+
     if (appointmentData.client_id?.length > 0) {
       bookAppointment();
     }

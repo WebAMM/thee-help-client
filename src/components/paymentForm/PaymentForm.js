@@ -5,24 +5,32 @@ import {
   getPaymentByUserId,
   addPayment,
 } from "../../store/reducers/payment.reducer";
+import {addAppointmentsByUserId} from '../../store/reducers/appointment.reducer'
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import MyPaymentForm from "./squarePaymentForm";
+import CreditCardInput from 'react-credit-card-input';
 
 function PaymentForm(props) {
-  const { next, back, complete } = props;
+  const { next, back, complete,company,selectedServiceData,setClientData } = props;
+
   const dispatch = useDispatch();
   const [paymentDetails, setPaymentDetails] = useState({
     first_name: "",
     last_name: "",
-    card_number: "",
-    expiry_date: "",
-    cvv: "",
-    card_holder_name: "",
+    cardNumber: "",
+    expiry: "",
+    cvc: "",
+    // card_holder_name: "",
     card_type: "",
-    amount: "",
+    amount: selectedServiceData?.amount,
     client_id: "",
   });
+
+  console.log("Company",company)
+  console.log("selectedServiceData",selectedServiceData)
+  console.log("setClientData",setClientData)
+
 
   // "payment_id": "123456789",
   // "payment_gateway": "Paypal",
@@ -33,7 +41,7 @@ function PaymentForm(props) {
 
   const submitPaymeny = async () => {
     try {
-      dispatch(addPayment(paymentDetails))
+      dispatch(addAppointmentsByUserId(paymentDetails))
         .then((response) => {
           if (response.payload.error) {
             toast.error(response.payload.response);
@@ -68,9 +76,52 @@ function PaymentForm(props) {
     }
   };
 
+  const handleCardNumber = (e) => {
+    setPaymentDetails({
+      ...paymentDetails,
+      cardNumber: e.target.value,
+    });
+  }
+  const handleExpiry = (e) => {
+    setPaymentDetails({
+      ...paymentDetails,
+      expiry: e.target.value,
+    });
+  }
+  const handleCvc = (e) => {
+    setPaymentDetails({
+      ...paymentDetails,
+      cvc: e.target.value,
+    });
+  }
+
   const handleSubmitPayment = (e) => {
     e.preventDefault();
     console.log("paymentDetails", paymentDetails);
+    try {
+      dispatch(addPayment(paymentDetails))
+        .then((response) => {
+          if (response.payload.error) {
+            toast.error(response.payload.response);
+          } else {
+            // toast.success("Client added Successfully");
+
+            
+            console.log(`response`, response.payload.client);
+          }
+        })
+
+       
+
+
+        .catch((err) => {
+          console.log(`err`, err.message);
+        });
+    } catch (error) {
+
+    }
+
+
     complete();
     // submitPaymeny();
   };
@@ -133,20 +184,51 @@ function PaymentForm(props) {
               type="number"
               id="amount"
               name="amount"
-              placeholder="1000$"
+              // placeholder="1000$"
+              contentEditable={false}
               className="client__input__box__input"
-              value={paymentDetails?.cvv}
+              value={selectedServiceData?.amount}
               onChange={(e) => {
                 setPaymentDetails({
                   ...paymentDetails,
-                  cvv: e.target.value,
+                  amount: e.target.value,
                 });
               }}
             />
           </div>
           <div className="col-md-12 client__input__box">
-            <MyPaymentForm paymentDetails={paymentDetails} />
+            <MyPaymentForm complete={complete} paymentDetails={paymentDetails} company={company} selectedServiceData={selectedServiceData} setClientData={selectedServiceData} />
           </div>
+          {/* <div>Hello</div> */}
+
+          {/* <div className="col-md-12 client__input__box">
+            <label htmlFor="amount" className="client__input__box__title">
+              Enter Card Details*:
+            </label>
+            <br />
+            <CreditCardInput
+              cardNumberInputProps={{ value: paymentDetails.cardNumber, onChange: handleCardNumber }}
+              cardExpiryInputProps={{ value: paymentDetails.expiry, onChange: handleExpiry }}
+              cardCVCInputProps={{ value: paymentDetails.cvc, onChange: handleCvc }}
+              fieldClassName="input"
+              style={{ backgroundColor: 'red', width: "100%" }}
+              containerClassName="client__input__box__input credit"
+              // containerStyle={{paddingTop:'20px'}}
+              invalidStyle={{ display: 'flex', border: 'none' }}
+              fieldStyle={{ paddingTop: "20px", }}
+
+            // inputClassName="client__input__box__input"
+            // containerStyle={{backgroundColor:'red',margin:'0px'}}
+            />
+          </div> */}
+
+
+
+
+
+
+
+
           {/* <div className="col-md-6 client__input__box">
             <label htmlFor="cardNumber" className="client__input__box__title">
               Card Number*:
@@ -252,12 +334,12 @@ function PaymentForm(props) {
           <button className="client__cancel__button" onClick={back}>
             Cancel
           </button>
-          <button
+          {/* <button
             className="client__submit__button"
             onClick={handleSubmitPayment}
           >
             confirm
-          </button>
+          </button> */}
         </div>
       </div>
     </div>
