@@ -21,6 +21,9 @@ const steps = ["Choose Appointment", "Your Information", "Confirmation"];
 const Home = (props) => {
   const dispatch = useDispatch();
   const { slug } = useParams();
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [userAdded, setUserAdded] = useState(false)
+  const [client_id,setClient_id] = useState(null)
   const [currentService, setCurrentService] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
@@ -38,7 +41,12 @@ const Home = (props) => {
       is_active: true,
     },
   ]);
-  const [clientData, setClientData] = useState({});
+  const [clientData, setClientData] = useState({
+    first_name: "",
+    last_name: "",
+    phone: "",
+    email: "",
+  });
 
   const getCompanyProfile = (e) => {
     // e.preventDefault();
@@ -46,6 +54,7 @@ const Home = (props) => {
     dispatch(getCompanyProfileBySlug(slug))
       .then((response) => {
         if (response.payload.error) {
+          console.log(response.payload.response)
           toast.error(response.payload.response);
           setIsLoading(false);
         } else {
@@ -64,7 +73,17 @@ const Home = (props) => {
 
   useEffect(() => {
     getCompanyProfile();
-  }, []);
+    let  client = localStorage.getItem('client')
+      console.log("client",client)
+    if(client != null){
+      setIsLoggedIn(true)
+      let obj = JSON.parse(client)
+      console.log(obj)
+      setClient_id(obj.clientdata._id)
+      setSelectedServiceData((pre)=>({...pre,client_id:obj.clientdata._id}))
+      console.log("LoggedIn User")
+    }
+  }, [userAdded]);
 
   const selectedService = (service) => {
     setSelectedServiceData(service);
@@ -97,13 +116,16 @@ const Home = (props) => {
         ? // It's the last step, but not all steps have been completed,
           // find the first step that has been completed
           steps.findIndex((step, i) => !(i in completed))
-        : activeStep + 1;
+        : isLoggedIn?  activeStep+2: activeStep + 1;
+
+   setSelectedServiceData((pre)=>({...pre,client_id:client_id||""}))    
     setActiveStep(newActiveStep);
   };
 
   const handleBack = () => {
     console.log(activeStep);
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    setSelectedServiceData((pre)=>({...pre,client_id:client_id||""}))    
+    setActiveStep((prevActiveStep) => isLoggedIn? prevActiveStep-2 : prevActiveStep - 1);
   };
 
   const handleStep = (step) => () => {
@@ -167,6 +189,7 @@ const Home = (props) => {
                       back={handleBack}
                       complete={handleComplete}
                       selectedService={selectedService}
+                      
                     />
                   </>
                 ) : null}
@@ -177,7 +200,9 @@ const Home = (props) => {
                       back={handleBack}
                       complete={handleComplete}
                       selectedServiceData={selectedServiceData}
+                      selectedService={selectedService}
                       setClientData={selectedClient}
+                      setUserAdded={setUserAdded}
                     />
                   </>
                 ) : null}
@@ -187,6 +212,10 @@ const Home = (props) => {
                       next={handleNext}
                       back={handleBack}
                       complete={handleComplete}
+                      selectedServiceData={selectedServiceData}
+                      setClientData={clientData}
+                      company={company}
+
                     />
                     {/* <MyPaymentForm
                       next={handleNext}
